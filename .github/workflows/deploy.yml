@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 env:
-  REGISTRY: 192.168.100.20:6443
+  REGISTRY: 192.168.100.20:30005
   JAVA_OPTS: "-Xmx512m"
 
 jobs:
