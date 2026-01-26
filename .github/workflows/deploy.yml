@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 env:
-  REGISTRY: 192.168.100.20:30005
+  REGISTRY: 192.168.100.20:6443
   JAVA_OPTS: "-Xmx512m"
 
 jobs:
@@ -63,7 +63,7 @@ jobs:
           
           # Apply Configs & Secrets
           kubectl apply -f k8s/01-environment.yaml
-          
+
           kubectl apply -f k8s/external-mongo.yaml
           
           # update Images
