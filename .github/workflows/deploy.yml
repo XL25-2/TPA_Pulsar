@@ -17,6 +17,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # 0. CREATE K8S SECRET FILE FROM GITHUB SECRETS
+      - name: Create K8s Secret File
+        run: |
+          echo "${{ secrets.K8S_ENV_SECRET }}" > k8s/01-environment.yaml
+
       # 1. SETUP BUILD ENVS
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -58,6 +63,8 @@ jobs:
           
           # Apply Configs & Secrets
           kubectl apply -f k8s/01-environment.yaml
+          
+          kubectl apply -f k8s/external-mongo.yaml
           
           # update Images
           kubectl apply -f k8s/

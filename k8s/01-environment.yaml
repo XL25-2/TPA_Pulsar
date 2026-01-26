@@ -17,4 +17,22 @@ data:
   NEXT_PUBLIC_BOOKING_SERVICE_URL: "http://192.168.100.200/api/bookings"
   NEXT_PUBLIC_OTEL_COLLECTOR_URL: "http://192.168.100.200/otel"
 ---
-# ADD SECRET (or tambah file ini ke gitignore kalo ditaro di sini)
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pulsar-environment
+  namespace: pulsar
+type: Opaque
+stringData:
+  # FIX: Point to the Terraform VM IPs (Router 1 & Router 2)
+  # Format: mongodb://user:pass@IP1:27017,IP2:27017/dbname?authSource=admin
+  SPRING_DATA_MONGODB_URI_AUTH: "mongodb://admin:admin123@192.168.100.50:27017,192.168.100.51:27017/auth_db?authSource=admin"
+  SPRING_DATA_MONGODB_URI_USER: "mongodb://admin:admin123@192.168.100.50:27017,192.168.100.51:27017/user_db?authSource=admin"
+  SPRING_DATA_MONGODB_URI_EVENT: "mongodb://admin:admin123@192.168.100.50:27017,192.168.100.51:27017/event_db?authSource=admin"
+  SPRING_DATA_MONGODB_URI_BOOKING: "mongodb://admin:admin123@192.168.100.50:27017,192.168.100.51:27017/booking_db?authSource=admin"
+  
+  # API URLs
+  AUTH_SERVICE_URL: "http://pulsar-auth-service.pulsar.svc.cluster.local:8080"
+  USER_SERVICE_URL: "http://pulsar-user-service.pulsar.svc.cluster.local:8080"
+  EVENT_SERVICE_URL: "http://pulsar-event-service.pulsar.svc.cluster.local:8080"
