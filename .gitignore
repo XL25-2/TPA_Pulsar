@@ -77,4 +77,4 @@ next-env.d.ts
 
 
 # k8s 
-k8s/01-environment.yaml
+.k8s/01-environment.yaml
