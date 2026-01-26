@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: booking-service
+  namespace: pulsar-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: booking-service
+  template:
+    metadata:
+      labels:
+        app: booking-service
+    spec:
+      containers:
+      - name: booking-service
+        image: 192.168.100.10:5000/booking-service:latest # latest diganti biar best-practice
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: pulsar-config
+        env:
+        - name: MONGODB_URI
+          valueFrom:
+            secretKeyRef:
+              name: pulsar-secrets
+              key: MONGODB_URI_BOOKING
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: booking-service
+  namespace: pulsar-app
+spec:
+  selector:
+    app: booking-service
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080

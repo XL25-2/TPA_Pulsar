@@ -1,0 +1,84 @@
+# Observer / opentelemetry collector 
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector-conf
+  namespace: pulsar-app
+data:
+  otel-collector-config.yaml: 
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+          http:
+            cors:
+              allowed_origins: ["*"] # allowing frontend
+
+    processors:
+      batch:
+
+    exporters:
+      logging:
+        loglevel: debug
+      # Point to LGTM services 
+      # vVVvVvVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV
+      # otlp:
+      #   endpoint: "tempo.monitoring.svc.cluster.local:4317"
+      # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [logging] # export to logs (change nanti)
+        metrics:
+          receivers: [otlp]
+          processors: [batch]
+          exporters: [logging]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-collector
+  namespace: pulsar-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel-collector
+  template:
+    metadata:
+      labels:
+        app: otel-collector
+    spec:
+      containers:
+      - name: otel-collector
+        image: otel/opentelemetry-collector:0.88.0
+        command: ["--config=/conf/otel-collector-config.yaml"]
+        ports:
+        - containerPort: 4317 # gRPC
+        - containerPort: 4318 # frontend (http)
+        volumeMounts:
+        - name: otel-collector-config-vol
+          mountPath: /conf
+      volumes:
+      - name: otel-collector-config-vol
+        configMap:
+          name: otel-collector-conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-collector
+  namespace: pulsar-app
+spec:
+  selector:
+    app: otel-collector
+  ports:
+  - name: grpc
+    port: 4317
+    targetPort: 4317
+  - name: http
+    port: 4318
+    targetPort: 4318

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pulsar-config
+  namespace: pulsar-app
+data:
+  SPRING_PROFILES_ACTIVE: "prod"
+  
+  # comms antar service
+  USER_SERVICE_GRPC_URL: "static://user-service.pulsar-app.svc.cluster.local:9090"
+  EVENT_SERVICE_GRPC_URL: "static://event-service.pulsar-app.svc.cluster.local:9092"
+  
+  # point to external loadbalancer (metalb) via Istio 
+  NEXT_PUBLIC_USER_SERVICE_URL: "http://192.168.100.200/api/users"
+  NEXT_PUBLIC_AUTH_SERVICE_URL: "http://192.168.100.200/api/auth"
+  NEXT_PUBLIC_EVENT_SERVICE_URL: "http://192.168.100.200/api/events"
+  NEXT_PUBLIC_BOOKING_SERVICE_URL: "http://192.168.100.200/api/bookings"
+  NEXT_PUBLIC_OTEL_COLLECTOR_URL: "http://192.168.100.200/otel"
+---
+# ADD SECRET (or tambah file ini ke gitignore kalo ditaro di sini)

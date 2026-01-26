@@ -1,0 +1,48 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: pulsar-gateway
+  namespace: pulsar-app
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: pulsar-routes
+  namespace: pulsar-app
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - pulsar-gateway
+  http:
+  # Telemetry
+  - match:
+    - uri:
+        prefix: /otel
+    rewrite:
+      uri: / # biar /otel/v1/traces -> /v1/traces 
+    route:
+    - destination:
+        host: otel-collector
+        port:
+          number: 4318
+
+  # Traffic
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: frontend
+        port:
+          number: 80
